@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<title>⚠️ تحذير ⚠️</title>
+<style>
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    background: black;
+    color: red;
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    overflow: hidden;
+}
+#message {
+    font-size: 2em;
+    margin-bottom: 20px;
+}
+#fileButton, #unlockButton {
+    width: 260px;
+    padding: 20px;
+    font-size: 1.2em;
+    cursor: pointer;
+    border: 3px solid red;
+    background-color: black;
+    color: red;
+    border-radius: 15px;
+    margin-top: 20px;
+}
+#progressContainer {
+    width: 80%;
+    background-color: grey;
+    height: 30px;
+    border-radius: 15px;
+    overflow: hidden;
+    display: none;
+    margin-top: 20px;
+}
+#progressBar {
+    width: 0%;
+    height: 100%;
+    background-color: red;
+}
+#lockScreen {
+    position: absolute;
+    top:0; left:0;
+    width:100%;
+    height:100%;
+    background:black;
+    color:white;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    font-size:2em;
+    display:none;
+}
+</style>
+</head>
+<body>
+
+<div id="message">اضغط على المربع لعرض محتوى الملف</div>
+<div id="fileButton">اضغط لعرض محتوى الملف</div>
+
+<div id="progressContainer">
+    <div id="progressBar"></div>
+</div>
+
+<div id="lockScreen">
+    🔒 الجهاز مقفل<br>
+    <button id="unlockButton">فتح القفل</button>
+</div>
+
+<audio id="alarm" loop>
+  <source src="https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg" type="audio/ogg">
+</audio>
+
+<script>
+const message = document.getElementById("message");
+const button = document.getElementById("fileButton");
+const progressContainer = document.getElementById("progressContainer");
+const progressBar = document.getElementById("progressBar");
+const alarm = document.getElementById("alarm");
+const lockScreen = document.getElementById("lockScreen");
+const unlockButton = document.getElementById("unlockButton");
+
+function vibratePhone(pattern = [300,200,300,200,500]) {
+    if (navigator.vibrate) navigator.vibrate(pattern);
+}
+
+function flashScreen() {
+    document.body.style.background = 'white';
+    setTimeout(() => { document.body.style.background = 'black'; }, 100);
+}
+
+// بدء الخدعة
+button.addEventListener("click", () => {
+    button.style.display = "none";
+    message.innerHTML = "جاري تحويل البيانات إلى جهاز POCO X7 Pro";
+    progressContainer.style.display = "block";
+
+    alarm.play().catch(()=>{});
+    vibratePhone();
+
+    let width = 0;
+    const interval = setInterval(() => {
+        width += 1.5;
+        if (width >= 100) width = 100;
+        progressBar.style.width = width + "%";
+
+        // عد تنازلي ونصوص متغيرة
+        if (width < 20) {
+            message.innerHTML = "يتم تحويل البيانات... 3";
+        } else if (width < 50) {
+            message.innerHTML = "يتم تحويل البيانات... 2";
+        } else if (width < 80) {
+            message.innerHTML = "يتم تحويل البيانات... 1";
+        } else {
+            message.innerHTML = "جارٍ التحقق من اكتمال العملية...";
+        }
+
+        // اهتزاز بصري + وميض
+        flashScreen();
+        vibratePhone([100,50,100]);
+
+        if (width >= 100) {
+            clearInterval(interval);
+            alarm.pause();
+
+            // إظهار شاشة القفل الوهمية
+            lockScreen.style.display = "flex";
+            progressContainer.style.display = "none";
+            message.style.display = "none";
+
+            alarm.play().catch(()=>{});
+            vibratePhone([500,300,500]);
+        }
+    }, 100);
+});
+
+// فتح القفل الوهمي
+unlockButton.addEventListener("click", () => {
+    lockScreen.style.display = "none";
+    alarm.pause();
+    message.style.display = "block";
+    message.innerHTML = "😂 هذا رابط كلاوات من عمكم هاشم";
+});
+</script>
+
+</body>
+</html>
